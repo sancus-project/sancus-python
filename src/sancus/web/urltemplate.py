@@ -32,7 +32,7 @@ class URLTemplateCompiler(object):
 
         result = ''.join(result)
         logger.debug("compile(%r): %s" % (template, result))
-        return result
+        return re.compile(result)
 
     def step2(self, template):
         result = []
