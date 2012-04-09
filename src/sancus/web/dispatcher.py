@@ -5,6 +5,7 @@ from .urltemplate import URLTemplateCompiler
 import re
 import logging
 
+_raw_url_pattern = re.compile(r'([^?#]+)([?#].*)?$')
 _logger = logging.getLogger(__name__)
 
 class WSGIMapper(object):
@@ -54,6 +55,27 @@ class PathMapper(WSGIMapper):
     """
     compile = URLTemplateCompiler()
     match = compile.match
+
+    def __init__(self, path_info='PATH_INFO', **kw):
+        WSGIMapper.__init__(self, **kw)
+        self.path_info = path_info
+
+    def __call__(self, environ, start_response):
+        if self.path_info and self.path_info != 'PATH_INFO':
+            script_name = environ.get('SCRIPT_NAME', '')
+            path_info = environ.get(self.path_info, '')
+
+            m = _raw_url_pattern.match(request_uri)
+            assert m, 'Invalid PATH_INFO replacement (%r): %r' % (self.path_info, path_info)
+
+            path_info = m.groups()[0]
+            if len(script_name) > 0:
+                assert(path_info.startswith(script_name))
+                path_info = path_info[len(script_name):]
+
+            environ['PATH_INFO'] = path_info
+
+        return WSGIMapper.__call__(self, environ, start_response)
 
     def find_handler(self, environ):
         """
