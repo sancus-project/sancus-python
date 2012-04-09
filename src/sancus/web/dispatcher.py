@@ -1,5 +1,7 @@
 from webob.exc import HTTPNotFound
 
+from .urltemplate import URLTemplateCompiler
+
 import re
 import logging
 
@@ -50,14 +52,8 @@ class WSGIMapper(object):
 class PathMapper(WSGIMapper):
     """
     """
-    def match(self, regex, s):
-        """
-        """
-        m = regex.match(s)
-        if not m:
-            return False, None, None, None, None
-
-        return True, (), m.groupdict(), s[:m.end()], s[m.end():]
+    compile = URLTemplateCompiler()
+    match = compile.match
 
     def find_handler(self, environ):
         """
