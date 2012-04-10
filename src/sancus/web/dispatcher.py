@@ -65,7 +65,7 @@ class PathMapper(WSGIMapper):
             script_name = environ.get('SCRIPT_NAME', '')
             path_info = environ.get(self.path_info, '')
 
-            m = _raw_url_pattern.match(request_uri)
+            m = _raw_url_pattern.match(path_info)
             assert m, 'Invalid PATH_INFO replacement (%r): %r' % (self.path_info, path_info)
 
             path_info = m.groups()[0]
