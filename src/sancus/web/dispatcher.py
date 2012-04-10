@@ -50,6 +50,14 @@ class WSGIMapper(object):
         p = (self.compile(expr), (h, kw))
         self.patterns.append(p)
 
+    def adddec(self, expr, **kw):
+        """
+        """
+        def wrap(h):
+            self.add(expr, h, **kw)
+            return h
+        return wrap
+
 class PathMapper(WSGIMapper):
     """
     """
