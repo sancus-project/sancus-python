@@ -15,7 +15,7 @@ class Resource(Response):
         else:
             return tuple(sorted(l))
 
-    def supported_methods(self):
+    def supported_methods(self, environ=None):
         """
         """
         try:
@@ -35,8 +35,8 @@ class Resource(Response):
 
         # method
         method = environ['REQUEST_METHOD']
-        if method not in self.supported_methods():
-            raise exc.HTTPMethodNotAllowed(allow = self.supported_methods())
+        if method not in self.supported_methods(environ):
+            raise exc.HTTPMethodNotAllowed(allow = self.supported_methods(environ))
 
         # handler
         handler_name = method
@@ -57,7 +57,7 @@ class Resource(Response):
         # webob
         req = Request(environ)
         Response.__init__(self, *d, request=req, **kw)
-        self.allow = self.supported_methods()
+        self.allow = self.supported_methods(environ)
 
     def __call__(self, environ, start_response):
         d = environ['sancus.pos_args']
@@ -71,7 +71,7 @@ class Resource(Response):
         elif ret == 404:
             raise exc.HTTPNotFound()
         elif ret == 405:
-            raise exc.HTTPMethodNotAllowed(allow = self.supported_methods())
+            raise exc.HTTPMethodNotAllowed(allow = self.supported_methods(environ))
         elif ret == 400:
             raise exc.HTTPBadRequest()
         elif ret == 503:
