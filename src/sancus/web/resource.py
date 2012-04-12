@@ -4,22 +4,24 @@ import webob.exc as exc
 class Resource(Response):
     _methods = ('GET', 'HEAD', 'POST', 'PUT', 'DELETE')
 
+    def find_supported_methods(self, d):
+        if isinstance(d, tuple):
+            l = [ m for m in d if callable(getattr(self, m, None)) ]
+        else:
+            l = [ m for (m, h) in d.items() if callable(getattr(self, h, None)) ]
+
+        if 'HEAD' in l and not 'GET' in l:
+            return tuple(sorted( m for m in l if m != 'HEAD' ))
+        else:
+            return tuple(sorted(l))
+
     def supported_methods(self):
         """
         """
         try:
             return type(self)._supported_methods
         except:
-            l = []
-
-        for method in self._methods:
-            # no 'HEAD' if no 'GET'
-            if method == 'HEAD' and 'GET' not in l:
-                continue
-
-            # self.FOO must exist and be callable
-            if callable(getattr(self, method, None)):
-                l.append(method)
+            l = self.find_supported_methods(self._methods)
 
         type(self)._supported_methods = l
         return l
