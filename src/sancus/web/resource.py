@@ -2,7 +2,7 @@ from webob import Request, Response
 import webob.exc as exc
 
 class Resource(Response):
-    _methods = ('GET', 'HEAD', 'POST', 'PUT', 'DELETE')
+    _methods = ('GET', 'POST', 'PUT', 'DELETE')
 
     def find_supported_methods(self, d):
         if isinstance(d, tuple):
@@ -10,8 +10,8 @@ class Resource(Response):
         else:
             l = dict((m, h) for (m, h) in d.items() if callable(getattr(self, h, None)))
 
-        if 'HEAD' in l and not 'GET' in l:
-            del l['HEAD']
+        if 'GET' in l and not 'HEAD' in l:
+            l['HEAD'] = l['GET']
 
         return l
 
@@ -25,9 +25,6 @@ class Resource(Response):
 
         type(self)._supported_methods = l
         return l
-
-    def HEAD(self, req, *d, **kw):
-        return self.GET(req, *d, **kw)
 
     def __init__(self, environ, *d, **kw):
         """
