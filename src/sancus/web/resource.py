@@ -6,14 +6,14 @@ class Resource(Response):
 
     def find_supported_methods(self, d):
         if isinstance(d, tuple):
-            l = [ m for m in d if callable(getattr(self, m, None)) ]
+            l = dict((m, m) for m in d if callable(getattr(self, m, None)))
         else:
-            l = [ m for (m, h) in d.items() if callable(getattr(self, h, None)) ]
+            l = dict((m, h) for (m, h) in d.items() if callable(getattr(self, h, None)))
 
         if 'HEAD' in l and not 'GET' in l:
-            return tuple(sorted( m for m in l if m != 'HEAD' ))
-        else:
-            return tuple(sorted(l))
+            del l['HEAD']
+
+        return l
 
     def supported_methods(self, environ=None):
         """
@@ -32,14 +32,14 @@ class Resource(Response):
     def __init__(self, environ, *d, **kw):
         """
         """
-
         # method
-        method = environ['REQUEST_METHOD']
-        if method not in self.supported_methods(environ):
-            raise exc.HTTPMethodNotAllowed(allow = self.supported_methods(environ))
+        handlers = self.supported_methods(environ)
+        try:
+            handler_name = handlers[environ['REQUEST_METHOD']]
+        except:
+            raise exc.HTTPMethodNotAllowed(allow = handlers)
 
         # handler
-        handler_name = method
         handler = getattr(self, handler_name, None)
         if not handler:
             raise exc.HTTPNotFound()
@@ -57,7 +57,7 @@ class Resource(Response):
         # webob
         req = Request(environ)
         Response.__init__(self, *d, request=req, **kw)
-        self.allow = self.supported_methods(environ)
+        self.allow = handlers
 
     def __call__(self, environ, start_response):
         d = environ['sancus.pos_args']
