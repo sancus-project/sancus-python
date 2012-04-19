@@ -30,6 +30,9 @@ class Table(object):
     def __getitem__(self, key):
         return self._fields.get(self, key, None)
 
+    def __contains__(self, key):
+        return key in self._fields
+
     def __setattr__(self, key, value):
         if value is not None:
             self._fields[key] = value
