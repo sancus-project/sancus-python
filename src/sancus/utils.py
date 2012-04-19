@@ -15,6 +15,15 @@ class Table(object):
         d = ["%s = %r" % (k,v) for k,v in self._fields.iteritems()]
         return "Table(%s)" % ', '.join(d)
 
+    def __iter__(self):
+        return self._fields.iteritems()
+
+    def __len__(self):
+        return len(self._fields)
+
+    def __delitem__(self, key):
+        del self._field[key]
+
     def __getattr__(self, key):
         return self._fields.get(self, key, None)
 
