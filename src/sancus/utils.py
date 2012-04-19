@@ -11,6 +11,10 @@ class Table(object):
         d = dict((k,v) for k,v in kw.iteritems() if v is not None)
         object.__setattr__(self, '_fields', d)
 
+    def __repr__(self):
+        d = ["%s = %r" % (k,v) for k,v in self._fields.iteritems()]
+        return "Table(%s)" % ', '.join(d)
+
     def __getattr__(self, key):
         return self._fields.get(self, key, None)
 
