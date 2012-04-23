@@ -25,10 +25,10 @@ class Table(object):
         del self._field[key]
 
     def __getattr__(self, key):
-        return self._fields.get(self, key, None)
+        return self._fields.get(key, None)
 
     def __getitem__(self, key):
-        return self._fields.get(self, key, None)
+        return self._fields.get(key, None)
 
     def __contains__(self, key):
         return key in self._fields
