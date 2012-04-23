@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from pprint import pformat, pprint
+
 class Table(object):
     """
     Like a Lua table, where items and attributes are the same thing, and
